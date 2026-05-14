@@ -6,36 +6,176 @@
     <title>НейроШпора - Кабинет</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #000; color: #fff; padding: 20px; }
-        .card { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
-        .btn { background: #0088cc; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; width: 100%; cursor: pointer; }
-        h1 { color: #0088cc; font-size: 24px; }
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --bg-color: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            background-image: radial-gradient(circle at 50% -20%, #1a2a6c, var(--bg-color));
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        /* Эффект матового стекла */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        }
+
+        .label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #subject {
+            font-size: 20px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        /* Модная полоска прогресса */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            height: 12px;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 45%;
+            height: 100%;
+            border-radius: 20px;
+            box-shadow: 0 0 15px var(--primary);
+            transition: width 1s ease-in-out;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Кнопка с неоновым эффектом */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 18px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
-    <h1>🚀 Твой прогресс</h1>
+
+    <h1>🚀 Кабинет</h1>
+
     <div class="card">
-        <p>Предмет: <span id="subject">Не выбран</span></p>
-        <div style="background: #333; height: 10px; border-radius: 5px;">
-            <div style="background: #0088cc; width: 45%; height: 100%; border-radius: 5px;"></div>
+        <div class="label">Студент</div>
+        <span id="subject">Загрузка...</span>
+        
+        <div class="label" style="margin-top: 20px;">Твой прогресс подготовки</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="bar"></div>
         </div>
-        <p>Готовность: 45%</p>
+        <div class="stat-row">
+            <span>Изучено тем: 12/30</span>
+            <span id="percent-text">45%</span>
+        </div>
     </div>
 
-    <button class="btn" onclick="sendDataToBot()">Получить новый план</button>
+    <div class="card" style="padding: 15px;">
+        <div class="label">Последняя активность</div>
+        <div style="font-size: 14px;">Генерация пробника: 14.05.2026</div>
+    </div>
+
+    <button class="btn" onclick="sendDataToBot()">📝 Сформировать новый план</button>
+
+    <div class="footer-note">НейроШпора v2.0 • Работает на Gemini 1.5 Pro</div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть на весь экран
+        tg.expand();
+        tg.ready();
 
-        // Получаем данные о пользователе
-        document.getElementById('subject').innerText = tg.initDataUnsafe.user.first_name || "Ученик";
+        // Устанавливаем тему в зависимости от настроек Telegram
+        document.body.style.setProperty('--primary', tg.themeParams.button_color || '#00d2ff');
+
+        // Получаем имя пользователя
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('subject').innerText = `${user.first_name} ${user.last_name || ''}`;
+        }
 
         function sendDataToBot() {
-            // Отправляем данные обратно боту
-            tg.sendData(JSON.stringify({action: "new_plan"}));
-            tg.close();
+            // Виброотклик при нажатии
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            tg.sendData(JSON.stringify({
+                action: "new_plan",
+                user_id: user?.id
+            }));
+            
+            // Можно не закрывать сразу, а показать анимацию успеха
+            setTimeout(() => tg.close(), 500);
         }
+
+        // Анимация полоски при загрузке
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('bar').style.width = '45%';
+            }, 300);
+        };
     </script>
 </body>
 </html>
