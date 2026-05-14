@@ -3,52 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Онлайн Шахматы</title>
-    <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
+    <title>НейроШпора - Кабинет</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: flex-start; margin-top: 20px; }
-        .container { display: flex; gap: 30px; }
-        .board-container { width: 500px; }
-        .info-panel { width: 250px; }
-        .info-panel h3, .info-panel h4 { margin-top: 0; }
-        #pgn { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; font-family: monospace; }
-        .controls button { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 16px; cursor: pointer; }
-        .controls button:disabled { background-color: #e0e0e0; cursor: not-allowed; }
+        body { font-family: sans-serif; background: #000; color: #fff; padding: 20px; }
+        .card { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
+        .btn { background: #0088cc; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; width: 100%; cursor: pointer; }
+        h1 { color: #0088cc; font-size: 24px; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="board-container">
-        <div id="board" style="width: 500px"></div>
-    </div>
-    <div class="info-panel">
-        <h3>Онлайн Шахматы</h3>
-        <h4 id="status">Выберите сторону, чтобы начать</h4>
-        <h4 id="player-role"></h4>
-
-        <div class="controls">
-            <div id="join-controls">
-                <button id="joinWhite">Играть за белых</button>
-                <button id="joinBlack">Играть за черных</button>
-            </div>
-            <div id="game-controls" style="display: none;">
-                <button id="swapButton">Сменить цвет</button>
-                <button id="restartButton">Начать заново</button>
-            </div>
+    <h1>🚀 Твой прогресс</h1>
+    <div class="card">
+        <p>Предмет: <span id="subject">Не выбран</span></p>
+        <div style="background: #333; height: 10px; border-radius: 5px;">
+            <div style="background: #0088cc; width: 45%; height: 100%; border-radius: 5px;"></div>
         </div>
-
-        <h4>История ходов (PGN)</h4>
-        <div id="pgn"></div>
+        <p>Готовность: 45%</p>
     </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="js/jquery-3.4.1.min.js"></script>
-<script src="js/chessboard-1.0.0.min.js"></script>
-<!-- *** Указываем правильное имя файла chess.min.js *** -->
-<script src="js/chess.min.js"></script>
-<script src="js/script_v2.js"></script>
+    <button class="btn" onclick="sendDataToBot()">Получить новый план</button>
 
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+
+        // Получаем данные о пользователе
+        document.getElementById('subject').innerText = tg.initDataUnsafe.user.first_name || "Ученик";
+
+        function sendDataToBot() {
+            // Отправляем данные обратно боту
+            tg.sendData(JSON.stringify({action: "new_plan"}));
+            tg.close();
+        }
+    </script>
 </body>
 </html>
