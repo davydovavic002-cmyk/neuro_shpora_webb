@@ -12,6 +12,7 @@
             --bg-color: #050505;
             --glass: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-error: #ff4a4a;
         }
 
         body {
@@ -35,7 +36,6 @@
             margin-bottom: 25px;
         }
 
-        /* Эффект матового стекла */
         .card {
             background: var(--glass);
             backdrop-filter: blur(15px);
@@ -55,14 +55,19 @@
             letter-spacing: 1px;
         }
 
-        #subject {
+        #student-name {
             font-size: 20px;
             font-weight: 600;
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
 
-        /* Модная полоска прогресса */
+        #student-stats {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
         .progress-container {
             background: rgba(255, 255, 255, 0.1);
             height: 12px;
@@ -74,11 +79,11 @@
 
         .progress-bar {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 45%;
+            width: 0%; 
             height: 100%;
             border-radius: 20px;
             box-shadow: 0 0 15px var(--primary);
-            transition: width 1s ease-in-out;
+            transition: width 1.2s cubic-bezier(0.1, 1, 0.1, 1);
         }
 
         .stat-row {
@@ -88,7 +93,42 @@
             font-size: 14px;
         }
 
-        /* Кнопка с неоновым эффектом */
+        .weak-tasks-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .weak-task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 74, 74, 0.05);
+            border: 1px solid rgba(255, 74, 74, 0.15);
+            border-radius: 12px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .weak-task-badge {
+            background: var(--accent-error);
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            box-shadow: 0 0 8px rgba(255, 74, 74, 0.4);
+        }
+
+        .no-errors {
+            color: #00ffcc;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: #fff;
@@ -118,63 +158,131 @@
 </head>
 <body>
 
-    <h1>🚀 Кабинет</h1>
+    <h1>🚀 Личный кабинет</h1>
 
     <div class="card">
         <div class="label">Студент</div>
-        <span id="subject">Загрузка...</span>
-        
-        <div class="label" style="margin-top: 20px;">Твой прогресс подготовки</div>
+        <span id="student-name">Загрузка...</span>
+        <div id="student-stats">1 LVL (0 XP)</div>
+
+        <div class="label" style="margin-top: 20px;">Прогресс подготовки (по темам)</div>
         <div class="progress-container">
             <div class="progress-bar" id="bar"></div>
         </div>
         <div class="stat-row">
-            <span>Изучено тем: 12/30</span>
-            <span id="percent-text">45%</span>
+            <span id="themes-count">Изучено тем: 0/30</span>
+            <span id="percent-text">0%</span>
         </div>
     </div>
 
-    <div class="card" style="padding: 15px;">
-        <div class="label">Последняя активность</div>
-        <div style="font-size: 14px;">Генерация пробника: 14.05.2026</div>
+    <div class="card">
+        <div class="label">Зоны риска (Анализ ошибок)</div>
+        <div id="weak-tasks-container">
+            <div class="no-errors">✨ Ошибок не зафиксировано! Ученик — чистый лист.</div>
+        </div>
     </div>
 
-    <button class="btn" onclick="sendDataToBot()">📝 Сформировать новый план</button>
+    <button class="btn" onclick="sendDataToBot()">📝 Сформировать «План-Перехват»</button>
 
-    <div class="footer-note">НейроШпора v2.0 • Работает на Gemini 1.5 Pro</div>
+    <div class="footer-note">Neuroshpora v2.0 • Rad Academy</div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
 
-        // Устанавливаем тему в зависимости от настроек Telegram
-        document.body.style.setProperty('--primary', tg.themeParams.button_color || '#00d2ff');
-
-        // Получаем имя пользователя
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('subject').innerText = `${user.first_name} ${user.last_name || ''}`;
+        // Адаптация цвета под тему ТГ
+        if (tg.themeParams.button_color) {
+            document.body.style.setProperty('--primary', tg.themeParams.button_color);
         }
 
+        // 1. Получаем данные пользователя из Telegram API
+        const user = tg.initDataUnsafe?.user;
+        const userId = user ? user.id : 123456789; // Тестовый ID для локальной отладки
+        
+        if (user) {
+            document.getElementById('student-name').innerText = `${user.first_name} ${user.last_name || ''}`;
+        } else {
+            document.getElementById('student-name').innerText = `Гость`;
+        }
+
+        // URL твоего запущенного бэкенда
+        const BACKEND_API_URL = "https://your-backend-domain.com/api/get_profile"; 
+
+        // 2. Логика запроса данных из бэкенда
+        async function loadStudentProfile() {
+            try {
+                const response = await fetch(`${BACKEND_API_URL}?user_id=${userId}`);
+                if (!response.ok) throw new Error("Ошибка сети");
+                
+                const profile = await response.json();
+                
+                const lvl = profile.level || 1;
+                const exp = profile.exp || 0;
+                document.getElementById('student-stats').innerText = `${lvl} ЛВЛ (${exp} XP)`;
+
+                // Каждые 100 XP считаем как одну изученную тему (максимум 30 тем)
+                const maxThemes = 30;
+                const completedThemes = Math.min(Math.floor(exp / 100), maxThemes);
+                const progressPercent = Math.round((completedThemes / maxThemes) * 100);
+
+                document.getElementById('themes-count').innerText = `Изучено тем: ${completedThemes}/${maxThemes}`;
+                document.getElementById('percent-text').innerText = `${progressPercent}%`;
+                document.getElementById('bar').style.width = `${progressPercent}%`;
+
+                // Вывод блока слабых зон (weak_tasks)
+                const weakTasks = profile.weak_tasks || {};
+                const container = document.getElementById('weak-tasks-container');
+                
+                const taskKeys = Object.keys(weakTasks);
+                if (taskKeys.length > 0) {
+                    let listHtml = '<ul class="weak-tasks-list">';
+                    taskKeys.forEach(taskNum => {
+                        const errorCount = weakTasks[taskNum];
+                        if (errorCount > 0) {
+                            listHtml += `
+                                <li class="weak-task-item">
+                                    <span>Задание №${taskNum}</span>
+                                    <span class="weak-task-badge">${errorCount} фикс</span>
+                                </li>`;
+                        }
+                    });
+                    listHtml += '</ul>';
+                    container.innerHTML = listHtml;
+                } else {
+                    container.innerHTML = '<div class="no-errors">✨ Ошибок не зафиксировано! Ученик — чистый лист.</div>';
+                }
+
+            } catch (error) {
+                console.log("Бэкенд недоступен, включен демо-режим офлайн:", error);
+                setupFallbackDemo();
+            }
+        }
+
+        // Демо-заглушка на случай локальных тестов без бэкенда
+        function setupFallbackDemo() {
+            document.getElementById('student-stats').innerText = `2 ЛВЛ (150 XP)`;
+            document.getElementById('themes-count').innerText = `Изучено тем: 1/30`;
+            document.getElementById('percent-text').innerText = `5%`;
+            setTimeout(() => {
+                document.getElementById('bar').style.width = '5%';
+            }, 200);
+        }
+
+        // 3. Отправка команды в бота
         function sendDataToBot() {
-            // Виброотклик при нажатии
-            tg.HapticFeedback.impactOccurred('medium');
-            
+            tg.HapticFeedback.impactOccurred('medium'); 
+
             tg.sendData(JSON.stringify({
                 action: "new_plan",
-                user_id: user?.id
+                user_id: userId
             }));
-            
-            // Можно не закрывать сразу, а показать анимацию успеха
+
             setTimeout(() => tg.close(), 500);
         }
 
-        // Анимация полоски при загрузке
         window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('bar').style.width = '45%';
-            }, 300);
+            loadStudentProfile();
         };
     </script>
 </body>
