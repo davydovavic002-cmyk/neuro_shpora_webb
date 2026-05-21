@@ -2,288 +2,451 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>НейроШпора - Кабинет</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>НейроШпора</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --primary: #00d2ff;
-            --secondary: #3a7bd5;
-            --bg-color: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent-error: #ff4a4a;
+            --tg-theme-bg: var(--fallback-bg, #0a0b10);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-hover: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --accent: #5eead4;
+            --accent-dim: rgba(94, 234, 212, 0.25);
+            --text: #f4f4f5;
+            --muted: rgba(244, 244, 245, 0.55);
+            --danger: #fb7185;
+            --radius: 20px;
+            --fallback-bg: #0a0b10;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-color);
-            background-image: radial-gradient(circle at 50% -20%, #1a2a6c, var(--bg-color));
-            color: #fff;
-            padding: 20px;
             margin: 0;
-            overflow-x: hidden;
             min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text);
+            background: var(--tg-theme-bg);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(94, 234, 212, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.08), transparent);
+            padding: 16px 16px 28px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 6px;
         }
 
         h1 {
-            font-weight: 800;
-            font-size: 28px;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
         }
 
-        .card {
+        .subtitle {
+            margin: 8px 0 0;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .glass {
             background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .profile-card {
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .profile-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(94, 234, 212, 0.35);
+            white-space: nowrap;
+        }
+
+        .badge.premium {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.35);
+        }
+
+        .meta {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
         }
 
         .label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 8px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 8px;
         }
 
-        #student-name {
-            font-size: 20px;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        #student-stats {
-            font-size: 14px;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .progress-container {
-            background: rgba(255, 255, 255, 0.1);
-            height: 12px;
-            border-radius: 20px;
+        .progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
             overflow: hidden;
-            position: relative;
-            margin: 10px 0;
         }
 
-        .progress-bar {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 0%; 
+        .progress-fill {
             height: 100%;
-            border-radius: 20px;
-            box-shadow: 0 0 15px var(--primary);
-            transition: width 1.2s cubic-bezier(0.1, 1, 0.1, 1);
+            width: 0%;
+            border-radius: 100px;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            box-shadow: 0 0 12px var(--accent-dim);
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .stat-row {
+        .progress-row {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
-            font-size: 14px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
         }
 
-        .weak-tasks-list {
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin: 0 0 10px 4px;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 14px;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, border-color 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+            background: var(--glass-hover);
+        }
+
+        .action-btn .icon {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .action-btn.wide {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-btn.primary {
+            border-color: rgba(94, 234, 212, 0.35);
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.12), rgba(129, 140, 248, 0.1));
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 16px;
+        }
+
+        .legal-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 14px;
+            margin-top: 20px;
+            padding: 14px 12px;
+            border-radius: 14px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .legal-nav a {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .legal-nav a:hover,
+        .legal-nav a:active {
+            color: var(--accent);
+        }
+
+        .legal-nav .sep {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            user-select: none;
+        }
+
+        .risk-list {
             margin: 0;
             padding: 0;
             list-style: none;
         }
 
-        .weak-task-item {
+        .risk-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 12px;
-            background: rgba(255, 74, 74, 0.05);
-            border: 1px solid rgba(255, 74, 74, 0.15);
-            border-radius: 12px;
             margin-top: 8px;
-            font-size: 14px;
+            border-radius: 12px;
+            background: rgba(251, 113, 133, 0.08);
+            border: 1px solid rgba(251, 113, 133, 0.2);
+            font-size: 13px;
         }
 
-        .weak-task-badge {
-            background: var(--accent-error);
-            color: #fff;
-            font-weight: bold;
+        .risk-count {
             font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            box-shadow: 0 0 8px rgba(255, 74, 74, 0.4);
-        }
-
-        .no-errors {
-            color: #00ffcc;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #fff;
-            border: none;
-            padding: 16px;
-            border-radius: 18px;
-            width: 100%;
-            font-size: 16px;
             font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 100px;
+            background: rgba(251, 113, 133, 0.25);
+            color: var(--danger);
         }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .footer-note {
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            margin-top: 30px;
+        .empty-state {
+            font-size: 13px;
+            color: var(--accent);
+            padding: 4px 0;
         }
     </style>
 </head>
 <body>
 
-    <h1>🚀 Личный кабинет</h1>
+    <header class="header">
+        <div class="logo">НейроШпора</div>
+        <h1>Личный кабинет</h1>
+        <p class="subtitle">Охота за баллами — твой прогресс и быстрый переход в разделы бота</p>
+    </header>
 
-    <div class="card">
-        <div class="label">Студент</div>
-        <span id="student-name">Загрузка...</span>
-        <div id="student-stats">1 LVL (0 XP)</div>
-
-        <div class="label" style="margin-top: 20px;">Прогресс подготовки (по темам)</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="bar"></div>
+    <section class="glass profile-card">
+        <div class="profile-top">
+            <div>
+                <div class="name" id="student-name">Загрузка…</div>
+                <div class="meta" id="student-subject">Предмет не выбран</div>
+            </div>
+            <span class="badge" id="status-badge">Базовый</span>
         </div>
-        <div class="stat-row">
-            <span id="themes-count">Изучено тем: 0/30</span>
+        <div class="label">Опыт</div>
+        <div class="meta" id="student-stats">1 LVL · 0 XP</div>
+        <div class="label" style="margin-top: 14px;">Прогресс охоты</div>
+        <div class="progress-track">
+            <div class="progress-fill" id="bar"></div>
+        </div>
+        <div class="progress-row">
+            <span id="themes-count">0 / 30 тем</span>
             <span id="percent-text">0%</span>
         </div>
+    </section>
+
+    <p class="section-title">Разделы бота</p>
+    <div class="actions">
+        <button type="button" class="action-btn primary wide" data-action="plan_perehvat">
+            <span><span class="icon">🚀</span> План-Перехват</span>
+            <span>→</span>
+        </button>
+        <button type="button" class="action-btn" data-action="kapkan">
+            <span class="icon">🪤</span>
+            <span>Капкан</span>
+        </button>
+        <button type="button" class="action-btn" data-action="question">
+            <span class="icon">❓</span>
+            <span>Вопрос по теме</span>
+        </button>
+        <button type="button" class="action-btn" data-action="progress">
+            <span class="icon">📊</span>
+            <span>Мой прогресс</span>
+        </button>
+        <button type="button" class="action-btn" data-action="second_part">
+            <span class="icon">📐</span>
+            <span>2-я часть</span>
+        </button>
+        <button type="button" class="action-btn" data-action="constructor">
+            <span class="icon">🛠</span>
+            <span>Конструктор</span>
+        </button>
+        <button type="button" class="action-btn wide" data-action="sos">
+            <span><span class="icon">🚨</span> SOS-аптечка</span>
+            <span>→</span>
+        </button>
     </div>
 
-    <div class="card">
-        <div class="label">Зоны риска (Анализ ошибок)</div>
-        <div id="weak-tasks-container">
-            <div class="no-errors">✨ Ошибок не зафиксировано! Ученик — чистый лист.</div>
-        </div>
-    </div>
+    <section class="glass profile-card" id="risk-card" style="display: none;">
+        <div class="label">Зоны риска</div>
+        <div id="weak-tasks-container"></div>
+    </section>
 
-    <button class="btn" onclick="sendDataToBot()">📝 Сформировать «План-Перехват»</button>
-
-    <div class="footer-note">Neuroshpora v2.0 • Rad Academy</div>
+    <nav class="legal-nav" aria-label="Юридические документы">
+        <a href="oferta.html">Оферта</a>
+        <span class="sep">·</span>
+        <a href="privacy.html">Конфиденциальность</a>
+        <span class="sep">·</span>
+        <a href="contacts.html">Контакты</a>
+    </nav>
+    <p class="footer">НейроШпора · WebApp</p>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        const tg = window.Telegram.WebApp;
         tg.ready();
+        tg.expand();
 
-        // Адаптация цвета под тему ТГ
-        if (tg.themeParams.button_color) {
-            document.body.style.setProperty('--primary', tg.themeParams.button_color);
+        // Синхронизация с темой Telegram
+        const tp = tg.themeParams || {};
+        if (tp.bg_color) {
+            document.documentElement.style.setProperty("--tg-theme-bg", tp.bg_color);
+        }
+        if (tp.button_color) {
+            document.documentElement.style.setProperty("--accent", tp.button_color);
+        }
+        if (tp.text_color) {
+            document.documentElement.style.setProperty("--text", tp.text_color);
         }
 
-        // 1. Получаем данные пользователя из Telegram API
         const user = tg.initDataUnsafe?.user;
-        const userId = user ? user.id : 123456789; // Тестовый ID для локальной отладки
-        
-        if (user) {
-            document.getElementById('student-name').innerText = `${user.first_name} ${user.last_name || ''}`;
-        } else {
-            document.getElementById('student-name').innerText = `Гость`;
-        }
+        const params = new URLSearchParams(window.location.search);
 
-        // URL твоего запущенного бэкенда
-        const BACKEND_API_URL = "https://your-backend-domain.com/api/get_profile"; 
+        const userId = params.get("user_id") || (user ? user.id : null);
+        const xp = parseInt(params.get("xp") || "0", 10);
+        const level = parseInt(params.get("level") || "1", 10);
+        const isPremium = params.get("premium") === "1";
+        const subject = params.get("subject") || "";
+        const examType = (params.get("exam_type") || "ege").toUpperCase();
 
-        // 2. Логика запроса данных из бэкенда
-        async function loadStudentProfile() {
-            try {
-                const response = await fetch(`${BACKEND_API_URL}?user_id=${userId}`);
-                if (!response.ok) throw new Error("Ошибка сети");
-                
-                const profile = await response.json();
-                
-                const lvl = profile.level || 1;
-                const exp = profile.exp || 0;
-                document.getElementById('student-stats').innerText = `${lvl} ЛВЛ (${exp} XP)`;
-
-                // Каждые 100 XP считаем как одну изученную тему (максимум 30 тем)
-                const maxThemes = 30;
-                const completedThemes = Math.min(Math.floor(exp / 100), maxThemes);
-                const progressPercent = Math.round((completedThemes / maxThemes) * 100);
-
-                document.getElementById('themes-count').innerText = `Изучено тем: ${completedThemes}/${maxThemes}`;
-                document.getElementById('percent-text').innerText = `${progressPercent}%`;
-                document.getElementById('bar').style.width = `${progressPercent}%`;
-
-                // Вывод блока слабых зон (weak_tasks)
-                const weakTasks = profile.weak_tasks || {};
-                const container = document.getElementById('weak-tasks-container');
-                
-                const taskKeys = Object.keys(weakTasks);
-                if (taskKeys.length > 0) {
-                    let listHtml = '<ul class="weak-tasks-list">';
-                    taskKeys.forEach(taskNum => {
-                        const errorCount = weakTasks[taskNum];
-                        if (errorCount > 0) {
-                            listHtml += `
-                                <li class="weak-task-item">
-                                    <span>Задание №${taskNum}</span>
-                                    <span class="weak-task-badge">${errorCount} фикс</span>
-                                </li>`;
-                        }
-                    });
-                    listHtml += '</ul>';
-                    container.innerHTML = listHtml;
-                } else {
-                    container.innerHTML = '<div class="no-errors">✨ Ошибок не зафиксировано! Ученик — чистый лист.</div>';
-                }
-
-            } catch (error) {
-                console.log("Бэкенд недоступен, включен демо-режим офлайн:", error);
-                setupFallbackDemo();
+        function displayName() {
+            if (user) {
+                return [user.first_name, user.last_name].filter(Boolean).join(" ");
             }
+            return userId ? `Ученик #${userId}` : "Гость";
         }
 
-        // Демо-заглушка на случай локальных тестов без бэкенда
-        function setupFallbackDemo() {
-            document.getElementById('student-stats').innerText = `2 ЛВЛ (150 XP)`;
-            document.getElementById('themes-count').innerText = `Изучено тем: 1/30`;
-            document.getElementById('percent-text').innerText = `5%`;
-            setTimeout(() => {
-                document.getElementById('bar').style.width = '5%';
-            }, 200);
+        function applyProfile() {
+            document.getElementById("student-name").textContent = displayName();
+            document.getElementById("student-stats").textContent = `${level} LVL · ${xp} XP`;
+
+            const subjectEl = document.getElementById("student-subject");
+            if (subject) {
+                subjectEl.textContent = `${subject} · ${examType}`;
+            } else {
+                subjectEl.textContent = "Выбери предмет в боте";
+            }
+
+            const badge = document.getElementById("status-badge");
+            if (isPremium) {
+                badge.textContent = "Premium";
+                badge.classList.add("premium");
+            } else {
+                badge.textContent = "Базовый";
+            }
+
+            const maxThemes = 30;
+            const completedThemes = Math.min(Math.floor(xp / 100), maxThemes);
+            const percent = Math.round((completedThemes / maxThemes) * 100);
+
+            document.getElementById("themes-count").textContent = `${completedThemes} / ${maxThemes} тем`;
+            document.getElementById("percent-text").textContent = `${percent}%`;
+            requestAnimationFrame(() => {
+                document.getElementById("bar").style.width = `${percent}%`;
+            });
         }
 
-        // 3. Отправка команды в бота
-        function sendDataToBot() {
-            tg.HapticFeedback.impactOccurred('medium'); 
+        /**
+         * Отправка действия в бота через Telegram WebApp API.
+         * Бот получает message.web_app_data и открывает нужный раздел.
+         */
+        function sendAction(action) {
+            if (!tg.sendData) {
+                alert("Открой кабинет из Telegram-бота НейроШпора");
+                return;
+            }
+
+            tg.HapticFeedback?.impactOccurred("medium");
 
             tg.sendData(JSON.stringify({
-                action: "new_plan",
-                user_id: userId
+                action: action,
+                user_id: userId,
+                subject: subject,
+                exam_type: examType,
             }));
 
-            setTimeout(() => tg.close(), 500);
+            setTimeout(() => tg.close(), 400);
         }
 
-        window.onload = () => {
-            loadStudentProfile();
-        };
+        document.querySelectorAll("[data-action]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                sendAction(btn.dataset.action);
+            });
+        });
+
+        applyProfile();
     </script>
 </body>
 </html>
+
