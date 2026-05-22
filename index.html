@@ -6,33 +6,61 @@
     <title>НейроШпора — профиль и Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* Фиксированная тёмная палитра — не зависит от светлой темы TG Desktop */
         :root {
-            --tg-theme-bg: var(--fallback-bg, #0a0b10);
-            --glass: rgba(255, 255, 255, 0.06);
-            --glass-hover: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            --bg-base: #0a0b10;
+            --bg-elevated: #12141c;
+            --glass: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.14);
             --accent: #5eead4;
-            --accent-dim: rgba(94, 234, 212, 0.25);
+            --accent-dim: rgba(94, 234, 212, 0.22);
             --gold: #fbbf24;
-            --gold-dim: rgba(251, 191, 36, 0.15);
-            --text: #f4f4f5;
-            --muted: rgba(244, 244, 245, 0.55);
+            --gold-dim: rgba(251, 191, 36, 0.18);
+            --text-primary: #f4f4f5;
+            --text-secondary: #c4c4cc;
+            --text-muted: #9ca3af;
             --radius: 20px;
-            --fallback-bg: #0a0b10;
+            --app-max-width: 420px;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            color-scheme: dark;
+            -webkit-text-size-adjust: 100%;
+            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            color: var(--text-primary) !important;
+            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
+        }
 
         body {
-            margin: 0;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text);
-            background: var(--tg-theme-bg);
+            line-height: 1.45;
             background-image:
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(94, 234, 212, 0.15), transparent),
-                radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.08), transparent);
-            padding: 16px 16px 32px;
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(94, 234, 212, 0.14), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.07), transparent) !important;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Центрированная «карточка» на широких экранах (TG Desktop) */
+        .app {
+            width: 100%;
+            max-width: var(--app-max-width);
+            margin: 0 auto;
+            padding-bottom: 24px;
         }
 
         .header { margin-bottom: 20px; }
@@ -41,29 +69,30 @@
             font-weight: 600;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: var(--accent);
+            color: var(--accent) !important;
             margin-bottom: 6px;
         }
         h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: clamp(22px, 5vw, 26px);
             font-weight: 700;
             letter-spacing: -0.03em;
+            color: var(--text-primary) !important;
         }
         .subtitle {
             margin: 8px 0 0;
             font-size: 14px;
-            color: var(--muted);
+            color: var(--text-secondary) !important;
             line-height: 1.45;
         }
 
         .glass {
-            background: var(--glass);
+            background: var(--glass) !important;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--glass-border) !important;
             border-radius: var(--radius);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
         .section-title {
@@ -71,11 +100,15 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--muted);
+            color: var(--text-muted) !important;
             margin: 0 0 10px 4px;
         }
 
-        .profile-card { padding: 18px; margin-bottom: 20px; }
+        .profile-card {
+            padding: 18px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
         .profile-top {
             display: flex;
             justify-content: space-between;
@@ -83,48 +116,60 @@
             gap: 12px;
             margin-bottom: 16px;
         }
-        .name { font-size: 18px; font-weight: 600; }
+        .name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary) !important;
+            word-break: break-word;
+        }
         .badge {
             font-size: 11px;
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 100px;
-            background: var(--accent-dim);
-            color: var(--accent);
-            border: 1px solid rgba(94, 234, 212, 0.35);
+            background: var(--accent-dim) !important;
+            color: var(--accent) !important;
+            border: 1px solid rgba(94, 234, 212, 0.4);
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .badge.premium {
-            background: var(--gold-dim);
-            color: var(--gold);
-            border-color: rgba(251, 191, 36, 0.35);
+            background: var(--gold-dim) !important;
+            color: var(--gold) !important;
+            border-color: rgba(251, 191, 36, 0.45);
         }
-        .meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+        .meta {
+            font-size: 13px;
+            color: var(--text-secondary) !important;
+            margin-top: 4px;
+        }
         .label {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: var(--muted);
+            color: var(--text-muted) !important;
             margin-bottom: 8px;
         }
         .progress-track {
             height: 8px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1) !important;
             border-radius: 100px;
             overflow: hidden;
         }
         .progress-fill {
             height: 100%;
+            min-width: 0;
             border-radius: 100px;
-            background: linear-gradient(90deg, var(--accent), #818cf8);
+            background: linear-gradient(90deg, var(--accent), #818cf8) !important;
             transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .progress-row {
             display: flex;
             justify-content: space-between;
+            gap: 8px;
             margin-top: 8px;
             font-size: 12px;
-            color: var(--muted);
+            color: var(--text-secondary) !important;
         }
 
         #shop { scroll-margin-top: 12px; }
@@ -132,12 +177,21 @@
         .tariff-card {
             padding: 18px;
             margin-bottom: 12px;
-            border-color: rgba(251, 191, 36, 0.25);
-            background: linear-gradient(145deg, rgba(251, 191, 36, 0.08), rgba(94, 234, 212, 0.06));
+            width: 100%;
+            border-color: rgba(251, 191, 36, 0.3) !important;
+            background: linear-gradient(
+                145deg,
+                rgba(251, 191, 36, 0.1),
+                rgba(94, 234, 212, 0.07)
+            ) !important;
         }
         .tariff-card.active-plan {
-            border-color: rgba(94, 234, 212, 0.4);
-            background: linear-gradient(145deg, rgba(94, 234, 212, 0.1), rgba(129, 140, 248, 0.08));
+            border-color: rgba(94, 234, 212, 0.45) !important;
+            background: linear-gradient(
+                145deg,
+                rgba(94, 234, 212, 0.12),
+                rgba(129, 140, 248, 0.09)
+            ) !important;
         }
 
         .tariff-head {
@@ -151,39 +205,45 @@
             font-size: 16px;
             font-weight: 700;
             line-height: 1.3;
+            color: var(--text-primary) !important;
+            flex: 1;
+            min-width: 0;
         }
         .tariff-price {
             font-size: 22px;
             font-weight: 800;
-            color: var(--gold);
+            color: var(--gold) !important;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .tariff-period {
             font-size: 12px;
-            color: var(--muted);
+            color: var(--text-secondary) !important;
             margin-bottom: 12px;
         }
         .tariff-features {
             margin: 0 0 16px;
             padding-left: 18px;
             font-size: 13px;
-            line-height: 1.5;
-            color: var(--muted);
+            line-height: 1.55;
+            color: var(--text-secondary) !important;
         }
         .tariff-features li { margin-bottom: 4px; }
 
         .btn-buy {
             width: 100%;
+            max-width: 100%;
             padding: 14px 16px;
             border: none;
             border-radius: 14px;
             font-size: 15px;
             font-weight: 700;
-            color: #0a0b10;
-            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #0a0b10 !important;
+            background: linear-gradient(135deg, var(--gold), #f59e0b) !important;
             cursor: pointer;
             transition: transform 0.15s, opacity 0.2s;
         }
+        .btn-buy:hover { filter: brightness(1.05); }
         .btn-buy:active { transform: scale(0.98); }
         .btn-buy:disabled {
             opacity: 0.5;
@@ -192,39 +252,62 @@
 
         .shop-note {
             font-size: 12px;
-            color: var(--muted);
-            line-height: 1.45;
+            color: var(--text-secondary) !important;
+            line-height: 1.5;
             margin: 0 4px 16px;
+        }
+        .shop-note b {
+            color: var(--text-primary) !important;
+            font-weight: 600;
         }
 
         .legal-footer {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
             gap: 6px 14px;
             margin-top: 24px;
             padding: 14px 12px;
             border-radius: 14px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
+            background: var(--glass) !important;
+            border: 1px solid var(--glass-border) !important;
+            width: 100%;
         }
         .legal-footer a {
             font-size: 12px;
             font-weight: 500;
-            color: var(--muted);
+            color: var(--text-secondary) !important;
             text-decoration: none;
         }
-        .legal-footer a:active { color: var(--accent); }
-        .legal-footer .sep { color: rgba(255, 255, 255, 0.2); font-size: 10px; }
+        .legal-footer a:hover,
+        .legal-footer a:active {
+            color: var(--accent) !important;
+        }
+        .legal-footer .sep {
+            color: rgba(255, 255, 255, 0.28) !important;
+            font-size: 10px;
+        }
         .page-footer {
             text-align: center;
             font-size: 11px;
-            color: var(--muted);
+            color: var(--text-muted) !important;
             margin-top: 12px;
+            padding: 0 8px;
+        }
+
+        @media (min-width: 480px) {
+            body { padding: 24px 20px 32px; }
+            .app {
+                max-width: var(--app-max-width);
+                padding: 4px 0 32px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <div class="app">
 
     <header class="header">
         <div class="logo">НейроШпора</div>
@@ -293,6 +376,8 @@
     </nav>
     <p class="page-footer">ИП Радостева А.П. · ИНН 380501890667</p>
 
+    </div><!-- .app -->
+
     <script>
         if (!window.Telegram?.WebApp) {
             document.body.innerHTML = "<p style='padding:24px;color:#fff'>Открой кабинет из Telegram-бота @NeuroShporaBot.</p>";
@@ -303,10 +388,23 @@
         tg.ready();
         tg.expand();
 
-        const tp = tg.themeParams || {};
-        if (tp.bg_color) document.documentElement.style.setProperty("--tg-theme-bg", tp.bg_color);
-        if (tp.button_color) document.documentElement.style.setProperty("--accent", tp.button_color);
-        if (tp.text_color) document.documentElement.style.setProperty("--text", tp.text_color);
+        /* Светлая тема TG Desktop перебивает CSS — фиксируем тёмный chrome WebApp */
+        const DARK_BG = "#0a0b10";
+        const DARK_HEADER = "#0a0b10";
+        try {
+            if (typeof tg.setBackgroundColor === "function") {
+                tg.setBackgroundColor(DARK_BG);
+            }
+            if (typeof tg.setHeaderColor === "function") {
+                tg.setHeaderColor(DARK_HEADER);
+            }
+            if (typeof tg.setBottomBarColor === "function") {
+                tg.setBottomBarColor(DARK_BG);
+            }
+        } catch (e) {
+            console.warn("WebApp chrome colors:", e);
+        }
+        document.documentElement.classList.add("theme-locked-dark");
 
         const user = tg.initDataUnsafe?.user;
         const params = new URLSearchParams(window.location.search);
