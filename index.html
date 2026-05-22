@@ -307,8 +307,11 @@
         </div>
     </section>
 
-    <p class="section-title">Разделы бота</p>
-    <div class="actions">
+    <p class="section-title">Быстрый переход в бот</p>
+    <p class="subtitle" style="margin: 0 0 12px 4px; font-size: 12px;">
+        Нажми раздел — бот откроет его в чате (как будто ты нажал кнопку в меню).
+    </p>
+    <div class="actions" id="actions-grid">
         <button type="button" class="action-btn primary wide" data-action="plan_perehvat">
             <span><span class="icon">🚀</span> План-Перехват</span>
             <span>→</span>
@@ -330,11 +333,15 @@
             <span>2-я часть</span>
         </button>
         <button type="button" class="action-btn" data-action="constructor">
-            <span class="icon">🛠</span>
+            <span class="icon">🎨</span>
             <span>Конструктор</span>
         </button>
         <button type="button" class="action-btn wide" data-action="sos">
             <span><span class="icon">🚨</span> SOS-аптечка</span>
+            <span>→</span>
+        </button>
+        <button type="button" class="action-btn wide primary" id="btn-premium" data-action="premium" style="display: none;">
+            <span><span class="icon">💎</span> Оформить Premium</span>
             <span>→</span>
         </button>
     </div>
@@ -344,16 +351,25 @@
         <div id="weak-tasks-container"></div>
     </section>
 
+    <p class="section-title" style="margin-top: 8px;">Документы</p>
+    <p class="subtitle" style="margin: 0 0 10px 4px; font-size: 12px;">
+        Открываются страницы на этом же сайте (без закрытия кабинета в боте).
+    </p>
     <nav class="legal-nav" aria-label="Юридические документы">
-        <a href="oferta.html">Оферта</a>
+        <a href="oferta.html" data-legal>Оферта</a>
         <span class="sep">·</span>
-        <a href="privacy.html">Конфиденциальность</a>
+        <a href="privacy.html" data-legal>Конфиденциальность</a>
         <span class="sep">·</span>
-        <a href="contacts.html">Контакты</a>
+        <a href="contacts.html" data-legal>Контакты</a>
     </nav>
     <p class="footer">НейроШпора · WebApp</p>
 
     <script>
+        if (!window.Telegram?.WebApp) {
+            document.body.innerHTML = "<p style='padding:24px;color:#fff'>Открой кабинет из Telegram-бота НейроШпора.</p>";
+            throw new Error("Telegram WebApp SDK not loaded");
+        }
+
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
@@ -378,7 +394,8 @@
         const level = parseInt(params.get("level") || "1", 10);
         const isPremium = params.get("premium") === "1";
         const subject = params.get("subject") || "";
-        const examType = (params.get("exam_type") || "ege").toUpperCase();
+        const examType = (params.get("exam_type") || "ege").toLowerCase();
+        const examLabel = examType === "oge" ? "ОГЭ" : "ЕГЭ";
 
         function displayName() {
             if (user) {
@@ -393,7 +410,7 @@
 
             const subjectEl = document.getElementById("student-subject");
             if (subject) {
-                subjectEl.textContent = `${subject} · ${examType}`;
+                subjectEl.textContent = `${subject} · ${examLabel}`;
             } else {
                 subjectEl.textContent = "Выбери предмет в боте";
             }
@@ -404,6 +421,11 @@
                 badge.classList.add("premium");
             } else {
                 badge.textContent = "Базовый";
+            }
+
+            const premiumBtn = document.getElementById("btn-premium");
+            if (premiumBtn && !isPremium) {
+                premiumBtn.style.display = "flex";
             }
 
             const maxThemes = 30;
@@ -436,12 +458,30 @@
                 exam_type: examType,
             }));
 
-            setTimeout(() => tg.close(), 400);
+            setTimeout(() => {
+                try {
+                    tg.close();
+                } catch (e) {
+                    console.warn("WebApp close:", e);
+                }
+            }, 400);
         }
 
         document.querySelectorAll("[data-action]").forEach((btn) => {
             btn.addEventListener("click", () => {
-                sendAction(btn.dataset.action);
+                sendAction(btn.getAttribute("data-action"));
+            });
+        });
+
+        document.querySelectorAll("[data-legal]").forEach((link) => {
+            link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const href = link.getAttribute("href");
+                if (tg.openLink && href.startsWith("http")) {
+                    tg.openLink(href);
+                } else {
+                    window.location.href = href;
+                }
             });
         });
 
