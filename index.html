@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>НейроШпора</title>
+    <title>НейроШпора — профиль и Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -13,17 +13,15 @@
             --glass-border: rgba(255, 255, 255, 0.12);
             --accent: #5eead4;
             --accent-dim: rgba(94, 234, 212, 0.25);
+            --gold: #fbbf24;
+            --gold-dim: rgba(251, 191, 36, 0.15);
             --text: #f4f4f5;
             --muted: rgba(244, 244, 245, 0.55);
-            --danger: #fb7185;
             --radius: 20px;
             --fallback-bg: #0a0b10;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
@@ -34,13 +32,10 @@
             background-image:
                 radial-gradient(ellipse 80% 50% at 50% -20%, rgba(94, 234, 212, 0.15), transparent),
                 radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.08), transparent);
-            padding: 16px 16px 28px;
+            padding: 16px 16px 32px;
         }
 
-        .header {
-            margin-bottom: 20px;
-        }
-
+        .header { margin-bottom: 20px; }
         .logo {
             font-size: 13px;
             font-weight: 600;
@@ -49,15 +44,12 @@
             color: var(--accent);
             margin-bottom: 6px;
         }
-
         h1 {
             margin: 0;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
             letter-spacing: -0.03em;
-            line-height: 1.2;
         }
-
         .subtitle {
             margin: 8px 0 0;
             font-size: 14px;
@@ -74,11 +66,16 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         }
 
-        .profile-card {
-            padding: 18px;
-            margin-bottom: 16px;
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin: 0 0 10px 4px;
         }
 
+        .profile-card { padding: 18px; margin-bottom: 20px; }
         .profile-top {
             display: flex;
             justify-content: space-between;
@@ -86,12 +83,7 @@
             gap: 12px;
             margin-bottom: 16px;
         }
-
-        .name {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
+        .name { font-size: 18px; font-weight: 600; }
         .badge {
             font-size: 11px;
             font-weight: 700;
@@ -102,19 +94,12 @@
             border: 1px solid rgba(94, 234, 212, 0.35);
             white-space: nowrap;
         }
-
         .badge.premium {
-            background: rgba(251, 191, 36, 0.15);
-            color: #fbbf24;
+            background: var(--gold-dim);
+            color: var(--gold);
             border-color: rgba(251, 191, 36, 0.35);
         }
-
-        .meta {
-            font-size: 13px;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
+        .meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
         .label {
             font-size: 11px;
             text-transform: uppercase;
@@ -122,23 +107,18 @@
             color: var(--muted);
             margin-bottom: 8px;
         }
-
         .progress-track {
             height: 8px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 100px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
-            width: 0%;
             border-radius: 100px;
             background: linear-gradient(90deg, var(--accent), #818cf8);
-            box-shadow: 0 0 12px var(--accent-dim);
             transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
-
         .progress-row {
             display: flex;
             justify-content: space-between;
@@ -147,135 +127,100 @@
             color: var(--muted);
         }
 
-        .section-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            margin: 0 0 10px 4px;
+        #shop { scroll-margin-top: 12px; }
+
+        .tariff-card {
+            padding: 18px;
+            margin-bottom: 12px;
+            border-color: rgba(251, 191, 36, 0.25);
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.08), rgba(94, 234, 212, 0.06));
+        }
+        .tariff-card.active-plan {
+            border-color: rgba(94, 234, 212, 0.4);
+            background: linear-gradient(145deg, rgba(94, 234, 212, 0.1), rgba(129, 140, 248, 0.08));
         }
 
-        .actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .action-btn {
+        .tariff-head {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-            padding: 14px;
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            color: var(--text);
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.3;
-            text-align: left;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.15s, border-color 0.2s;
-        }
-
-        .action-btn:active {
-            transform: scale(0.97);
-            background: var(--glass-hover);
-        }
-
-        .action-btn .icon {
-            font-size: 22px;
-            line-height: 1;
-        }
-
-        .action-btn.wide {
-            grid-column: 1 / -1;
-            flex-direction: row;
-            align-items: center;
             justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-
-        .action-btn.primary {
-            border-color: rgba(94, 234, 212, 0.35);
-            background: linear-gradient(135deg, rgba(94, 234, 212, 0.12), rgba(129, 140, 248, 0.1));
+        .tariff-name {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.3;
         }
-
-        .footer {
-            text-align: center;
-            font-size: 11px;
+        .tariff-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold);
+            white-space: nowrap;
+        }
+        .tariff-period {
+            font-size: 12px;
             color: var(--muted);
-            margin-top: 16px;
+            margin-bottom: 12px;
+        }
+        .tariff-features {
+            margin: 0 0 16px;
+            padding-left: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+        .tariff-features li { margin-bottom: 4px; }
+
+        .btn-buy {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #0a0b10;
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.2s;
+        }
+        .btn-buy:active { transform: scale(0.98); }
+        .btn-buy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .legal-nav {
+        .shop-note {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.45;
+            margin: 0 4px 16px;
+        }
+
+        .legal-footer {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 6px 14px;
-            margin-top: 20px;
+            margin-top: 24px;
             padding: 14px 12px;
             border-radius: 14px;
             background: var(--glass);
             border: 1px solid var(--glass-border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
         }
-
-        .legal-nav a {
+        .legal-footer a {
             font-size: 12px;
             font-weight: 500;
             color: var(--muted);
             text-decoration: none;
-            transition: color 0.2s;
         }
-
-        .legal-nav a:hover,
-        .legal-nav a:active {
-            color: var(--accent);
-        }
-
-        .legal-nav .sep {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 10px;
-            user-select: none;
-        }
-
-        .risk-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .risk-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            margin-top: 8px;
-            border-radius: 12px;
-            background: rgba(251, 113, 133, 0.08);
-            border: 1px solid rgba(251, 113, 133, 0.2);
-            font-size: 13px;
-        }
-
-        .risk-count {
+        .legal-footer a:active { color: var(--accent); }
+        .legal-footer .sep { color: rgba(255, 255, 255, 0.2); font-size: 10px; }
+        .page-footer {
+            text-align: center;
             font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 100px;
-            background: rgba(251, 113, 133, 0.25);
-            color: var(--danger);
-        }
-
-        .empty-state {
-            font-size: 13px;
-            color: var(--accent);
-            padding: 4px 0;
+            color: var(--muted);
+            margin-top: 12px;
         }
     </style>
 </head>
@@ -284,10 +229,11 @@
     <header class="header">
         <div class="logo">НейроШпора</div>
         <h1>Личный кабинет</h1>
-        <p class="subtitle">Охота за баллами — твой прогресс и быстрый переход в разделы бота</p>
+        <p class="subtitle">Прогресс охоты за баллами и оформление Premium</p>
     </header>
 
-    <section class="glass profile-card">
+    <p class="section-title">📊 Мой прогресс</p>
+    <section class="glass profile-card" id="progress-section">
         <div class="profile-top">
             <div>
                 <div class="name" id="student-name">Загрузка…</div>
@@ -295,7 +241,7 @@
             </div>
             <span class="badge" id="status-badge">Базовый</span>
         </div>
-        <div class="label">Опыт</div>
+        <div class="label">Уровень и опыт</div>
         <div class="meta" id="student-stats">1 LVL · 0 XP</div>
         <div class="label" style="margin-top: 14px;">Прогресс охоты</div>
         <div class="progress-track">
@@ -307,66 +253,49 @@
         </div>
     </section>
 
-    <p class="section-title">Быстрый переход в бот</p>
-    <p class="subtitle" style="margin: 0 0 12px 4px; font-size: 12px;">
-        Нажми раздел — бот откроет его в чате (как будто ты нажал кнопку в меню).
+    <p class="section-title" id="shop">💎 Магазин Premium</p>
+    <p class="shop-note">
+        <b>Доступ к информационному сервису</b> — дистанционные информационно-консультационные
+        услуги подготовки к ЕГЭ/ОГЭ через бота @NeuroShporaBot. Оплата в Telegram (Robokassa).
     </p>
-    <div class="actions" id="actions-grid">
-        <button type="button" class="action-btn primary wide" data-action="plan_perehvat">
-            <span><span class="icon">🚀</span> План-Перехват</span>
-            <span>→</span>
-        </button>
-        <button type="button" class="action-btn" data-action="kapkan">
-            <span class="icon">🪤</span>
-            <span>Капкан</span>
-        </button>
-        <button type="button" class="action-btn" data-action="question">
-            <span class="icon">❓</span>
-            <span>Вопрос по теме</span>
-        </button>
-        <button type="button" class="action-btn" data-action="progress">
-            <span class="icon">📊</span>
-            <span>Мой прогресс</span>
-        </button>
-        <button type="button" class="action-btn" data-action="second_part">
-            <span class="icon">📐</span>
-            <span>2-я часть</span>
-        </button>
-        <button type="button" class="action-btn" data-action="constructor">
-            <span class="icon">🎨</span>
-            <span>Конструктор</span>
-        </button>
-        <button type="button" class="action-btn wide" data-action="sos">
-            <span><span class="icon">🚨</span> SOS-аптечка</span>
-            <span>→</span>
-        </button>
-        <button type="button" class="action-btn wide primary" id="btn-premium" data-action="premium" style="display: none;">
-            <span><span class="icon">💎</span> Оформить Premium</span>
-            <span>→</span>
-        </button>
-    </div>
 
-    <section class="glass profile-card" id="risk-card" style="display: none;">
-        <div class="label">Зоны риска</div>
-        <div id="weak-tasks-container"></div>
-    </section>
+    <article class="glass tariff-card" id="tariff-premium">
+        <div class="tariff-head">
+            <div class="tariff-name">Доступ к информационному сервису</div>
+            <div class="tariff-price">790 ₽</div>
+        </div>
+        <div class="tariff-period">Premium · 1 месяц с момента оплаты</div>
+        <ul class="tariff-features">
+            <li>Разбор 2-й части по критериям ФИПИ</li>
+            <li>Конструктор шпор-карточек</li>
+            <li>SOS-аптечка перед экзаменом</li>
+            <li>Премиум-разделы в боте</li>
+        </ul>
+        <button type="button" class="btn-buy" id="btn-buy">Купить</button>
+    </article>
 
-    <p class="section-title" style="margin-top: 8px;">Документы</p>
-    <p class="subtitle" style="margin: 0 0 10px 4px; font-size: 12px;">
-        Открываются страницы на этом же сайте (без закрытия кабинета в боте).
-    </p>
-    <nav class="legal-nav" aria-label="Юридические документы">
-        <a href="oferta.html" data-legal>Оферта</a>
+    <article class="glass tariff-card active-plan" id="tariff-active" style="display: none;">
+        <div class="tariff-head">
+            <div class="tariff-name">Premium активен</div>
+            <div class="tariff-price" style="color: var(--accent); font-size: 16px;">✓</div>
+        </div>
+        <p class="tariff-period" style="margin-bottom: 0;">
+            Все инструменты открыты в боте. Возвращайся в чат и жми нужный раздел меню.
+        </p>
+    </article>
+
+    <nav class="legal-footer" aria-label="Юридические документы">
+        <a href="oferta.html">Оферта</a>
         <span class="sep">·</span>
-        <a href="privacy.html" data-legal>Конфиденциальность</a>
+        <a href="privacy.html">Конфиденциальность</a>
         <span class="sep">·</span>
-        <a href="contacts.html" data-legal>Контакты</a>
+        <a href="contacts.html">Контакты</a>
     </nav>
-    <p class="footer">НейроШпора · WebApp</p>
+    <p class="page-footer">ИП Радостева А.П. · ИНН 380501890667</p>
 
     <script>
         if (!window.Telegram?.WebApp) {
-            document.body.innerHTML = "<p style='padding:24px;color:#fff'>Открой кабинет из Telegram-бота НейроШпора.</p>";
+            document.body.innerHTML = "<p style='padding:24px;color:#fff'>Открой кабинет из Telegram-бота @NeuroShporaBot.</p>";
             throw new Error("Telegram WebApp SDK not loaded");
         }
 
@@ -374,17 +303,10 @@
         tg.ready();
         tg.expand();
 
-        // Синхронизация с темой Telegram
         const tp = tg.themeParams || {};
-        if (tp.bg_color) {
-            document.documentElement.style.setProperty("--tg-theme-bg", tp.bg_color);
-        }
-        if (tp.button_color) {
-            document.documentElement.style.setProperty("--accent", tp.button_color);
-        }
-        if (tp.text_color) {
-            document.documentElement.style.setProperty("--text", tp.text_color);
-        }
+        if (tp.bg_color) document.documentElement.style.setProperty("--tg-theme-bg", tp.bg_color);
+        if (tp.button_color) document.documentElement.style.setProperty("--accent", tp.button_color);
+        if (tp.text_color) document.documentElement.style.setProperty("--text", tp.text_color);
 
         const user = tg.initDataUnsafe?.user;
         const params = new URLSearchParams(window.location.search);
@@ -409,29 +331,28 @@
             document.getElementById("student-stats").textContent = `${level} LVL · ${xp} XP`;
 
             const subjectEl = document.getElementById("student-subject");
-            if (subject) {
-                subjectEl.textContent = `${subject} · ${examLabel}`;
-            } else {
-                subjectEl.textContent = "Выбери предмет в боте";
-            }
+            subjectEl.textContent = subject
+                ? `${subject} · ${examLabel}`
+                : "Выбери предмет в боте";
 
             const badge = document.getElementById("status-badge");
+            const buyBtn = document.getElementById("btn-buy");
+            const tariffPremium = document.getElementById("tariff-premium");
+            const tariffActive = document.getElementById("tariff-active");
+
             if (isPremium) {
                 badge.textContent = "Premium";
                 badge.classList.add("premium");
+                tariffPremium.style.display = "none";
+                tariffActive.style.display = "block";
             } else {
                 badge.textContent = "Базовый";
-            }
-
-            const premiumBtn = document.getElementById("btn-premium");
-            if (premiumBtn && !isPremium) {
-                premiumBtn.style.display = "flex";
+                buyBtn.disabled = false;
             }
 
             const maxThemes = 30;
             const completedThemes = Math.min(Math.floor(xp / 100), maxThemes);
             const percent = Math.round((completedThemes / maxThemes) * 100);
-
             document.getElementById("themes-count").textContent = `${completedThemes} / ${maxThemes} тем`;
             document.getElementById("percent-text").textContent = `${percent}%`;
             requestAnimationFrame(() => {
@@ -439,54 +360,27 @@
             });
         }
 
-        /**
-         * Отправка действия в бота через Telegram WebApp API.
-         * Бот получает message.web_app_data и открывает нужный раздел.
-         */
-        function sendAction(action) {
+        function sendPremiumPurchase() {
             if (!tg.sendData) {
-                alert("Открой кабинет из Telegram-бота НейроШпора");
+                alert("Открой кабинет из бота @NeuroShporaBot");
                 return;
             }
-
             tg.HapticFeedback?.impactOccurred("medium");
-
-            tg.sendData(JSON.stringify({
-                action: action,
-                user_id: userId,
-                subject: subject,
-                exam_type: examType,
-            }));
-
+            tg.sendData(JSON.stringify({ action: "premium", user_id: userId }));
             setTimeout(() => {
-                try {
-                    tg.close();
-                } catch (e) {
-                    console.warn("WebApp close:", e);
-                }
+                try { tg.close(); } catch (e) { console.warn(e); }
             }, 400);
         }
 
-        document.querySelectorAll("[data-action]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                sendAction(btn.getAttribute("data-action"));
-            });
-        });
+        document.getElementById("btn-buy").addEventListener("click", sendPremiumPurchase);
 
-        document.querySelectorAll("[data-legal]").forEach((link) => {
-            link.addEventListener("click", (e) => {
-                e.preventDefault();
-                const href = link.getAttribute("href");
-                if (tg.openLink && href.startsWith("http")) {
-                    tg.openLink(href);
-                } else {
-                    window.location.href = href;
-                }
+        if (window.location.hash === "#shop") {
+            requestAnimationFrame(() => {
+                document.getElementById("shop").scrollIntoView({ behavior: "smooth", block: "start" });
             });
-        });
+        }
 
         applyProfile();
     </script>
 </body>
 </html>
-
